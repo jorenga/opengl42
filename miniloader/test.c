@@ -31,29 +31,21 @@ void		realloc_cat(char** src, char* str, int size)
 	int		i = 0;
 	int		len = strlen(*src);
 
-	f_puts("1\n");
 	s = (char*)malloc(sizeof(char) * (len + size + 1));
-	f_puts("2\n");
-	while (*src[i] != '\0')
+	while (i < len)
 	{
-	f_puts("\ta\n");
-		s[i] = *src[i];
-	f_puts("\tb\n");
+		s[i] = (*src)[i];
 		i++;
 	}
-	f_puts("3\n");
 	i =  0;
 	while (i < size)
 	{
 		s[i + len] = str[i];
 		i++;
 	}
-	f_puts("4\n");
 	s[i + len] = '\0';
-	f_puts("5\n");
 	free(*src);
 	*src = s;
-	f_puts("6\n");
 }
 
 char*			fileToBuf(char* filename)
@@ -67,10 +59,7 @@ char*			fileToBuf(char* filename)
 	*src = '\0';
 	while ((ret = read(fd, buf, BUFLEN)) != 0)
 	{
-	//	printf("read %d bytes:\n[%s]\n\t*  --  *\n", ret, buf);
 		realloc_cat(&src, buf, ret);
-		f_puts(src);
-		f_puts("\n");
 	}
 	return (src);
 }
