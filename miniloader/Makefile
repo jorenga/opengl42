@@ -3,7 +3,8 @@ FLAGS=-Wall -Wextra -I./includes/ -I./includes/GLFW -g
 NAME=miniloader 
 
 SRC= main.c \
-	 callback.c
+	 callback.c \
+	 shader.c
 
 OBJ= $(SRC:.c=.o)
 

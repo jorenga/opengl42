@@ -1,5 +1,4 @@
 #include "miniloader.h"
-#include <unistd.h>
 
 void                    setHint()
 {
@@ -48,7 +47,7 @@ void                    cleanOpenGL(GLFWwindow* win)
 
 
 
-void                    run(GLFWwindow* win)
+void                    run(GLFWwindow* win, t_shaders prog)
 {
 
     while (!glfwWindowShouldClose(win))
@@ -56,7 +55,9 @@ void                    run(GLFWwindow* win)
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glUseProgram(prog.prog);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glUseProgram(0);
 
     	glfwSwapBuffers(win);
         glfwPollEvents();
@@ -67,13 +68,16 @@ void                    run(GLFWwindow* win)
 int					main()
 {
 	GLFWwindow		*win;
+	t_shaders		prog;
 
 	win = setOpenGL(1024, 1024, "biatch");
+	createShaderProgram(&prog, "vs.glsl", "fs.glsl");
 	if (!win)
 		return (0);
 
-	run(win);
+	run(win, prog);
 
+	cleanShaders(prog);
 	cleanOpenGL(win);
 	return (0);
 }
