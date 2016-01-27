@@ -1,4 +1,5 @@
 #include <fractol.h>
+
 void			squareCpx(t_cpx *C, t_cpx *Z)
 {
 	double		r;

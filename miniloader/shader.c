@@ -6,8 +6,11 @@ int						createShaderProgram(t_shaders *s, char* VSfile, char* FSfile)
 	GLuint				prog;
 
 	vs = createShader(GL_VERTEX_SHADER, VSfile);
+	printf("vertex shader   created with id: %u\n", vs);
 	fs = createShader(GL_FRAGMENT_SHADER, FSfile);
+	printf("fragment shader created with id: %u\n", fs);
 	prog = createProgram(vs, fs);
+	printf("program         created with id: %u\n", prog);
 
 	s->prog = prog;
 	s->vs = vs;
@@ -38,12 +41,12 @@ void        			realloc_cat(char** src, char* str, int size)
     *src = s;
 }
 
-char*           		fileToBuf(char* filename)
+const char*         fileToBuf(char* filename)
 {
-    char       		 buf[BUFLEN];
-    int			fd = open(filename, O_RDONLY);
-    int         ret;
-    char*       src;
+    char       		buf[BUFLEN];
+    int				fd = open(filename, O_RDONLY);
+    int         	ret;
+    char*       	src;
 
     src = (char*)malloc(sizeof(char));
     *src = '\0';
@@ -60,7 +63,7 @@ GLuint					createShader(GLenum type, char* filename)
 	GLint				shader_ok;
 	GLsizei				log_length;
 	char				info_log[8192];
-	char				*source;
+	const char			*source;
 
 	source = fileToBuf(filename);
 	shader = glCreateShader(type);
