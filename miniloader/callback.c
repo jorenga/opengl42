@@ -19,3 +19,13 @@ void            error_callback(int error, const char* description)
 {
 	printf("Error #%d: %s\n", error, description);
 }
+
+void			cursor_position_callback(GLFWwindow* window,
+		double xPos, double yPos)
+{
+	t_uptr              *ptr;
+
+	ptr = (t_uptr*)glfwGetWindowUserPointer(window);
+	ptr->mousePos[0] = xPos / 1920;
+	ptr->mousePos[1] = yPos/ 1050;
+}
