@@ -20,49 +20,38 @@ vec2	eq1(vec2 z, vec2 c)
 	return nz;
 }
 
+vec2	eq2(vec2 z, vec2 c)
+{
+	vec2 nz;
+
+	nz.x = exp(z.x*z.x) / exp(z.y*z.y) * cos(2 * z.x * z.y) + c.x;
+	nz.y = exp(z.x*z.x) / exp(z.y*z.y) * sin(2 * z.x * z.y) + c.y;
+	return nz;
+}
+
+vec2	eq3(vec2 z, vec2 c)
+{
+	vec2 nz;
+
+	nz.x = exp(z.x) * cos(z.y) + c.x;
+	nz.y = exp(z.x) * sin(z.y) + c.y;
+	return nz;
+}
+
 float	iterControl(vec2 z, vec2 c)
 {
-	float	a = 0;
-
-	while (a < param.y)
-	{
-		z = eq1(z, c);
-		if ( (z.x * z.x + z.y * z.y) >= param.x )
-			break;
-		a++;
-	}
-	return (a / param.y);
-}
-
-float	lineDist(vec2 p, vec3 l)
-{
-	float		d;
-
-	d = l.x * p.x + l.y * p.y + l.z;
-	d = abs(d) / (sqrt(l.x*l.x + l.y*l.y));
-	return d;
-}
-
-float	iterDist(vec2 z, vec2 c)
-{
 	float a = 0;
-	float dist = 1e20f;
-	vec2 point = vec2(0.285, 0.01);
-	vec3 line = vec3(0.285, 0.01, 1.15);
-
 	while (a < param.y)
 	{
 		z = eq1(z, c);
 		if ( (z.x * z.x + z.y * z.y) >= param.x )
 			break;
 		a++;
-		dist = min(dist, length(z - point));
-		dist = min(dist, lineDist(z, line));
 	}
-	return (sqrt(dist));
+	return (a);	
 }
 
-void main()
+void	main()
 {
 	vec2 z = gl_FragCoord.xy / res;
 //	z *= res/min(res.x,res.y);
@@ -70,15 +59,17 @@ void main()
 	z.x = grid.x + ( grid.y - grid.x ) * z.x;
 	z.y = grid.z + ( grid.w - grid.z ) * z.y;
 
-//	z = vec2(0.0f, 0.0f);
-//	vec2 c = z;
-	vec2 c = vec2(mousePos);
+//	vec2 c = vec2(0.285f, 0.01f);
+	vec2 c = mousePos;
 	c.x = grid.x + ( grid.y - grid.x ) * c.x;
 	c.y = grid.z + ( grid.w - grid.z ) * c.y;
 
-//	float col = iterControl(z, c);
-	float col = iterDist(z, c);
-		
-	vec3 color = vec3(1.0f - col, 0, col);
+//	float a = iterControl(c, z);
+	float a = iterControl(z, c);
+	float col = a / param.y;	
+
+	vec3 color = vec3(1.0f / a, 0, col);
+
 	finalColor = vec4(color, 1.0);
+//	finalColor = vec4(z.x, col, z.y, 1.0);
 }

@@ -152,7 +152,7 @@ int						main()
 	if (!win)
 		return (0);
 
-	createShaderProgram(&prog, "vs.glsl", "fs.glsl");
+	createShaderProgram(&prog, "vs.glsl", "fsrt.glsl");
 	setShaderParam(&prog, WIDTH, HEIGHT);
 
 	createVertexObject(&vo, &prog);
