@@ -1,5 +1,6 @@
 #include <fractol.h>
 
+//			Z = Z^2 + C
 void			squareCpx(t_cpx *C, t_cpx *Z)
 {
 	double		r;
@@ -11,6 +12,7 @@ void			squareCpx(t_cpx *C, t_cpx *Z)
 	Z->i = 2 * r * i + C->i;
 }
 
+//			Z = Z^3 + C
 void			cubeCpx(t_cpx *C, t_cpx *Z)
 {
 	double		r;
@@ -22,6 +24,7 @@ void			cubeCpx(t_cpx *C, t_cpx *Z)
 	Z->i = 3 * r * r * i - i * i * i + C->i;
 }
 
+//			Z = exp(Z) + C
 void			expCpx(t_cpx *C, t_cpx *Z)
 {
 	double		r;
@@ -33,6 +36,7 @@ void			expCpx(t_cpx *C, t_cpx *Z)
 	Z->i = exp(r) * sin(i) + C->i;
 }
 
+//			Z = exp(Z) * Z + C
 void			expZCpx(t_cpx *C, t_cpx *Z)
 {
 	double		r;
@@ -44,6 +48,7 @@ void			expZCpx(t_cpx *C, t_cpx *Z)
 	Z->i = i * exp(r) * cos(i) + r * exp(r) * sin(i) + C->i;
 }
 
+//			Z = exp(Z^2) * Z + C
 void			exp2Cpx(t_cpx *C, t_cpx *Z)
 {
 	double		r;
