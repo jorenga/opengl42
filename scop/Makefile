@@ -1,14 +1,19 @@
 CC= gcc
-FLAGS=-Wall -Wextra -I./includes/ -I./includes/GLFW -g
+FLAGS=-Wall -Wextra -I./includes/ -I./includes/GLFW -g -DGLFW_USE_CHDIR=0
 NAME=scop 
 
 SRC= main.c \
 	 callback.c \
-	 glContext.c
+	 gl_context.c \
+	 matrix.c \
+	 parsing.c \
+	 bmp_import.c \
+	 shader.c
 
 OBJ= $(SRC:.c=.o)
 
-LIB=  -L./libs/ -lglad -lglfw3
+INC=  -I libft/includes
+LIB=  -L./libs/ -lglad -lglfw3 -L libft -lft
 
 FRWK=   -framework AGL \
 		-framework Cocoa \

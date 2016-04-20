@@ -2,7 +2,8 @@
 # define CALLBACK_H
 
 # include <stdio.h>
-# include "glInclude.h"
+# include "gl_include.h"
+# include "gl_struct.h"
 
 void 			error_callback(int error, const char* description);
 void			framebuffer_size_callback(GLFWwindow* window, int w, int h);
