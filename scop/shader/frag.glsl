@@ -1,5 +1,5 @@
 #version 410
-#define M_PI 3.14159
+#define M_PI 3.141592
 
 uniform float c;
 
@@ -14,16 +14,16 @@ void main()
 {
 	vec4	texCol;
 	vec4	priCol;
+//	float	r = 2.0f;
+//	vec2	t;
 
+//	r = fragVert.z;
+//	t.x = acos(fragVert.z / r) / M_PI;
+//	t.y = acos(fragVert.x / r * sin(M_PI * t.x)) / (2 * M_PI);
 
-//	vec2	t = fragVert.xy;
-//	t.x /= 4 * cos(t.x) * M_PI;
-//	t.y /= 4 * cos(t.y) * M_PI;
+//	texCol = texture(tex, t);
 	texCol = texture(tex, (fragVert.xy + 1 + fragVert.z) / 2);
-//	texCol = texture(tex, (t + 1 + fragVert.z) /2);
 
-
-//	priCol = 1 -texCol;
 	priCol = vec4(0.01f, 0.01f, 0.01f, 1.0f) * (gl_PrimitiveID % 100);
 
 	finalColor = texCol * c + priCol * (1 - c);
