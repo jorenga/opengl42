@@ -2,6 +2,7 @@
 #define M_PI 3.141592
 
 uniform float c;
+uniform int nbPrim;
 
 in vec4 fragVert;
 in vec4	fragColor;
@@ -9,22 +10,23 @@ in vec4	fragColor;
 out vec4 finalColor;
 
 uniform sampler2D tex;
+uniform sampler2D scale;
 
 void main()
 {
 	vec4	texCol;
 	vec4	priCol;
-//	float	r = 2.0f;
-//	vec2	t;
 
-//	r = fragVert.z;
-//	t.x = acos(fragVert.z / r) / M_PI;
-//	t.y = acos(fragVert.x / r * sin(M_PI * t.x)) / (2 * M_PI);
-
-//	texCol = texture(tex, t);
 	texCol = texture(tex, (fragVert.xy + 1 + fragVert.z) / 2);
+//	texCol = texture(tex, fragVert.xy);
 
-	priCol = vec4(0.01f, 0.01f, 0.01f, 1.0f) * (gl_PrimitiveID % 100);
+	float a, b, c;
+	a = gl_PrimitiveID;
+	b = nbPrim - 1;
+	c = a / b;
+	priCol = texture(scale, vec2(c, 1));
 
-	finalColor = texCol * c + priCol * (1 - c);
+//	finalColor = texCol * c + priCol * (1 - c);
+	finalColor = priCol;
+//	finalColor = texCol;
 }

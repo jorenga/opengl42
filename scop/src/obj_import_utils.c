@@ -39,9 +39,10 @@ int					get_nb_ind(char *line)
 
 	tab = ft_strsplit(line, ' ');
 	nb = array_length(tab);
-	if (nb - 1 == 3)
-		return (nb - 1);
-	return (nb * 2);
+	nb--;
+	if (nb == 3)
+		return (nb);
+	return (6);
 }
 
 void				get_array_sizes(int fd, t_sizes *sizes)
@@ -55,7 +56,10 @@ void				get_array_sizes(int fd, t_sizes *sizes)
 		if (!ft_strcmp(token, "v"))
 			sizes->vert_size++;
 		else if (!ft_strcmp(token, "f"))
+		{
 			sizes->ind_size += get_nb_ind(line);
+			sizes->nb_faces++;
+		}
 		free(token);
 		free(line);
 	}

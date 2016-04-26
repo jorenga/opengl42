@@ -22,6 +22,20 @@ void				add_vertices(t_mesh *mesh, char *line)
 		mesh->mm.min_z = v.z;
 }
 
+void				add_color(t_mesh *mesh, int len)
+{
+	mesh->ramp += mesh->step;
+	mesh->colors[mesh->col_pos++] = mesh->ramp;
+	mesh->colors[mesh->col_pos++] = mesh->ramp;
+	mesh->colors[mesh->col_pos++] = mesh->ramp;
+	if (len == 4)
+	{
+		mesh->colors[mesh->col_pos++] = mesh->ramp;
+		mesh->colors[mesh->col_pos++] = mesh->ramp;
+		mesh->colors[mesh->col_pos++] = mesh->ramp;
+	}
+}
+
 void				add_face(t_mesh *mesh, char *line)
 {
 	char			*s;
@@ -33,19 +47,15 @@ void				add_face(t_mesh *mesh, char *line)
 	s = get_faces(line);
 	array = ft_strsplit(s, ' ');
 	len = array_length(array);
-	if (len == 3)
+	while (i < 3)
+		mesh->indices[mesh->ind_pos++] = ft_atoi(array[i++]) - 1;
+	 if (len == 4)
 	{
-		while (i < len)
-			mesh->indices[mesh->ind_pos++] = ft_atoi(array[i++]) - 1;
-	}
-	else if (len == 4)
-	{
-		while (i < 3)
-			mesh->indices[mesh->ind_pos++] = ft_atoi(array[i++]) - 1;
 		mesh->indices[mesh->ind_pos++] = ft_atoi(array[0]) - 1;
 		mesh->indices[mesh->ind_pos++] = ft_atoi(array[2]) - 1;
 		mesh->indices[mesh->ind_pos++] = ft_atoi(array[3]) - 1;
 	}
+	add_color(mesh, len);
 }
 
 void				get_mesh(int fd, t_sizes *sizes, t_mesh *mesh)
