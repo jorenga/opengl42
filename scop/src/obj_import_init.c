@@ -6,12 +6,7 @@ void				allocate_mesh(t_mesh *mesh, t_sizes *sizes)
 	mesh->indices =  malloc(sizeof(GLuint) * sizes->ind_size);
 	mesh->vert_pos = 0;
 	mesh->ind_pos = 0;
-	mesh->step = 1.0 / sizes->nb_faces;
 	mesh->nb_prim = sizes->ind_size / 3;
-	mesh->colors = malloc(sizeof(float) * mesh->nb_prim * 3);
-	mesh->col_pos = 0;
-	mesh->ramp = 0;
-	printf("nb faces: %d\tnb_prim: %d\n" , sizes->nb_faces, mesh->nb_prim);
 }
 void				init_min_max(t_mesh *m)
 {

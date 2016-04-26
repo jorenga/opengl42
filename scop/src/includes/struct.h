@@ -39,10 +39,6 @@ typedef struct		s_mesh
 	t_min_max		mm;
 	t_vec3			center;
 	t_vec3			pos;
-	float			*colors;
-	int				col_pos;
-	float			step;
-	float			ramp;
 	int				nb_prim;
 }					t_mesh;
 
@@ -50,12 +46,11 @@ typedef struct		s_sizes
 {
 	int				vert_size;
 	int				ind_size;
-	int				nb_faces;
 }					t_sizes;
 
 typedef struct		s_tex
 {
-	GLuint			id[2];
+	GLuint			id[3];
 }					t_tex;
 
 typedef struct		s_gl_obj

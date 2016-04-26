@@ -2,6 +2,8 @@
 #define M_PI 3.141592
 
 uniform float c;
+uniform int	texUnit;
+uniform int	map;
 uniform int nbPrim;
 
 in vec4 fragVert;
@@ -9,24 +11,30 @@ in vec4	fragColor;
 
 out vec4 finalColor;
 
-uniform sampler2D tex;
-uniform sampler2D scale;
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
 
 void main()
 {
+	vec2	texCoord;
 	vec4	texCol;
 	vec4	priCol;
 
-	texCol = texture(tex, (fragVert.xy + 1 + fragVert.z) / 2);
-//	texCol = texture(tex, fragVert.xy);
+	clamp(c, 0, 1);
+	if (map == 0)
+		texCoord = (fragVert.xy + 1 + fragVert.z) / 2;
+	else if (map > 0)
+		texCoord = fragVert.zy;
+	if (texUnit == 0)
+		texCol = texture(tex0, texCoord);
+	else if (texUnit == 1)
+		texCol = texture(tex1, texCoord);
+	else if (texUnit == 2)
+		texCol = texture(tex2, texCoord);
 
-	float a, b, c;
-	a = gl_PrimitiveID;
-	b = nbPrim - 1;
-	c = a / b;
-	priCol = texture(scale, vec2(c, 1));
+	float d = gl_PrimitiveID / (nbPrim - 1.0);
+	priCol = vec4(d);
 
-//	finalColor = texCol * c + priCol * (1 - c);
-	finalColor = priCol;
-//	finalColor = texCol;
+	finalColor = mix(texCol, priCol, c);
 }

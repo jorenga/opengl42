@@ -10,6 +10,8 @@ typedef struct			s_input
 	float				z;
 	char				col;
 	float				anim;
+	int					tex;
+	int					mapping;
 }						t_input;
 
 typedef struct			s_win_info

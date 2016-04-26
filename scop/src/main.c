@@ -1,17 +1,23 @@
 #include "scop.h"
 
-void				add_matrices(GLuint prog, float *m, float *p, float c)
+void				add_matrices(GLuint prog, float *m, float *p, t_input *i)
 {
-	GLint			uloc_M;
-	GLint			uloc_P;
-	GLint			uloc_C;
+	GLint			uloc_m;
+	GLint			uloc_p;
+	GLint			uloc_anim;
+	GLint			uloc_tex;
+	GLint			uloc_map;
 
-	uloc_M = glGetUniformLocation(prog, "M");
-	uloc_P = glGetUniformLocation(prog, "P");
-	uloc_C = glGetUniformLocation(prog, "c");
-	glUniformMatrix4fv(uloc_M, 1, GL_FALSE, m);
-	glUniformMatrix4fv(uloc_P, 1, GL_FALSE, p);
-	glUniform1f(uloc_C, c);
+	uloc_m = glGetUniformLocation(prog, "M");
+	uloc_p = glGetUniformLocation(prog, "P");
+	uloc_anim = glGetUniformLocation(prog, "c");
+	uloc_tex = glGetUniformLocation(prog, "texUnit");
+	uloc_map = glGetUniformLocation(prog, "map");
+	glUniformMatrix4fv(uloc_m, 1, GL_FALSE, m);
+	glUniformMatrix4fv(uloc_p, 1, GL_FALSE, p);
+	glUniform1f(uloc_anim, i->anim);
+	glUniform1i(uloc_tex, i->tex);
+	glUniform1i(uloc_map, i->mapping);
 }
 
 void				run(t_gl_data* data, t_mesh *mesh, GLuint prog, float *p)
@@ -22,14 +28,13 @@ void				run(t_gl_data* data, t_mesh *mesh, GLuint prog, float *p)
 
 	up.input = &(data->input);
 	glfwSetWindowUserPointer(data->win, (void*)(&up));
-//	glUseProgram(prog);
 	glBindVertexArray(mesh->vao);
 	while (!(glfwWindowShouldClose(data->win)))
 	{
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		move_mesh(data, mesh, m, &al);
-		add_matrices(prog, m, p, data->input.anim);
+		add_matrices(prog, m, p, &(data->input));
 		glDrawElements(GL_TRIANGLES, mesh->ind_pos, GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(data->win);
 		glfwPollEvents();
@@ -57,17 +62,6 @@ void				setup_mesh(t_mesh *mesh, GLuint program)
 	glBindVertexArray(0);
 }
 
-void				print_tex(float *tex, int nb)
-{
-	int				i = 0;
-
-	while (i < nb * 3)
-	{
-		printf("%f\t%f\t%f\n", tex[i], tex[i + 1], tex[i + 2]);
-		i += 3;
-	}
-}
-
 void				setup_texture(t_tex *tex, GLuint program, t_mesh *mesh)
 {
 	float			*texels;
@@ -77,29 +71,37 @@ void				setup_texture(t_tex *tex, GLuint program, t_mesh *mesh)
 	glGenTextures(2, tex->id);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex->id[0]);
-	texels = import_bmp_file("chaton.bmp", &w, &h);
+	texels = import_bmp_file("textures/chaton.bmp", &w, &h);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, texels);
-	glUniform1i(glGetUniformLocation(program, "tex"), 0);
+	glUniform1i(glGetUniformLocation(program, "tex0"), 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(texels);
 	
-//	print_tex(texels, 20);
-//	printf("\n\n");
-//	print_tex(mesh->colors, 20);
-
 	glActiveTexture(GL_TEXTURE0 + 1);
 	glBindTexture(GL_TEXTURE_2D, tex->id[1]);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mesh->col_pos / 3, 1, 0, GL_RGB,
-					GL_FLOAT, mesh->colors);
-	glUniform1i(glGetUniformLocation(program, "scale"), 1);
+	texels = import_bmp_file("textures/weird1.bmp", &w, &h);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, texels);
+	glUniform1i(glGetUniformLocation(program, "tex1"), 1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+	free(texels);
+
+	glActiveTexture(GL_TEXTURE0 + 2);
+	glBindTexture(GL_TEXTURE_2D, tex->id[2]);
+	texels = import_bmp_file("textures/wood1.bmp", &w, &h);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_FLOAT, texels);
+	glUniform1i(glGetUniformLocation(program, "tex2"), 2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	free(texels);
+
 	glUniform1i(glGetUniformLocation(program, "nbPrim"), mesh->nb_prim);
 }
 

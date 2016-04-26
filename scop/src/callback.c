@@ -19,6 +19,10 @@ static void				check_press(t_user_ptr *ptr, int key)
 		ptr->input->z = -step;
 	if (key == GLFW_KEY_C)
 		ptr->input->col *= -1;
+	if (key == GLFW_KEY_T)
+		ptr->input->tex = (ptr->input->tex + 1) % 3;
+	if (key == GLFW_KEY_M)
+		ptr->input->mapping = (ptr->input->mapping + 1) % 3;
 }
 
 static void				check_release(t_user_ptr *ptr, int key)

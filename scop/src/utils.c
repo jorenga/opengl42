@@ -28,6 +28,7 @@ void	init_input(t_gl_data *data)
 	data->input.z = 0;
 	data->input.col = 1;
 	data->input.anim = 1;
+	data->input.tex = 0;
 }
 
 void	move_mesh(t_gl_data *data, t_mesh *mesh, float *m, float *al)
@@ -42,11 +43,7 @@ void	move_mesh(t_gl_data *data, t_mesh *mesh, float *m, float *al)
 			mesh->center.z * -1);
 	*al += 0.01;
 	if (data->input.col == 1 && data->input.anim < 1)
-		data->input.anim += 0.01;
+		data->input.anim += 0.025;
 	if (data->input.col == -1 && data->input.anim > 0)
-		data->input.anim -= 0.01;
-	if (data->input.anim > 1)
-		data->input.anim = 1;
-	if (data->input.anim < 0)
-		data->input.anim = 0;
+		data->input.anim -= 0.025;
 }

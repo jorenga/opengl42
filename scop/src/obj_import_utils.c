@@ -56,10 +56,7 @@ void				get_array_sizes(int fd, t_sizes *sizes)
 		if (!ft_strcmp(token, "v"))
 			sizes->vert_size++;
 		else if (!ft_strcmp(token, "f"))
-		{
 			sizes->ind_size += get_nb_ind(line);
-			sizes->nb_faces++;
-		}
 		free(token);
 		free(line);
 	}
