@@ -1,18 +1,17 @@
-CC= g++
-FLAGS=-Wall -Wextra -std=c++11 -O3
-NAME=ps
+CC=		g++
+FLAGS=	-Wall -Wextra -std=c++11 -O3
+NAME=	ps
 
 SRC= main.cpp \
-	 Timer.cpp
+	 OpenCL.cpp \
 
 OBJ= $(SRC:.cpp=.o)
 
-INC=
-LIB=  
+LIB=	-L./libs/ -lglad -lglfw3
 
-FRWK=  -framework OpenCL
+FRWK=	-framework OpenCL
 
-.PHONY: clean fclean re all
+.PHONY: clean fclean re
 .SILENT:
 
 all:$(NAME) 
