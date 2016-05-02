@@ -3,11 +3,14 @@ FLAGS=	-Wall -Wextra -std=c++11 -O3
 NAME=	ps
 
 SRC= main.cpp \
-	 OpenCL.cpp \
+	 OpenCLError.cpp \
+	 OpenCLSimulation.cpp \
+	 OpenCLTask.cpp \
+	 Timer.cpp
 
 OBJ= $(SRC:.cpp=.o)
 
-LIB=	-L./libs/ -lglad -lglfw3
+LIB=
 
 FRWK=	-framework OpenCL
 
