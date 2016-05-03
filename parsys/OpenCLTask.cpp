@@ -1,6 +1,6 @@
 #include "OpenCLTask.hpp"
 
-OpenCLTask::OpenCLTask() {}
+OpenCLTask::OpenCLTask(int nbParticle) : _nbParticle(nbParticle) {}
 
 OpenCLTask::~OpenCLTask() {
 	clReleaseMemObject(this->_particles);
@@ -24,7 +24,7 @@ void			OpenCLTask::createProgram(std::string filename, cl_context ctx, cl_device
 	content = getSourceContent(filename);
 	this->_program = clCreateProgramWithSource(ctx, 1, &content, NULL, &(this->_err));
 	checkCLError(this->_err, "creating program");
-	this->_err = clBuildProgram(this->_program, 0, NULL, NULL, NULL, NULL);
+	this->_err = clBuildProgram(this->_program, 0, NULL, "-Werror", NULL, NULL);
 	if (this->_err != CL_SUCCESS) {
 		clGetProgramBuildInfo(this->_program, device, CL_PROGRAM_BUILD_LOG, sizeof(log), log, NULL);
 		std::cerr << "Error on compilation(" << "program.cl" << "):" << std::endl;
@@ -32,16 +32,28 @@ void			OpenCLTask::createProgram(std::string filename, cl_context ctx, cl_device
 	}
 }
 
-void			OpenCLTask::createKernel(std::string fnName)
+void			OpenCLTask::createKernel(std::string fnName, cl_device_id device)
 {
 	this->_kernel = clCreateKernel(this->_program, fnName.c_str(), &(this->_err));
 	checkCLError(this->_err, "creating kernel");
+	this->_err = clGetKernelWorkGroupInfo(
+			this->_kernel,
+			device,
+			CL_KERNEL_WORK_GROUP_SIZE,
+			sizeof(this->_localWorkSize),
+			&(this->_localWorkSize),
+			NULL);
+	checkCLError(this->_err, "Getting work group info");
+
+	this->_nbWorkGroup = this->_nbParticle / this->_localWorkSize + 1;
+	this->_globalWorkSize = this->_nbWorkGroup * this->_localWorkSize;
 }
 
 void			OpenCLTask::setKernelArg(cl_context ctx, GLuint vbo)
 {
-	std::cout << "create buffer" << std::endl;
+	std::cout << "create buffer: "<< vbo  << std::endl;
 	this->_particles = clCreateFromGLBuffer(ctx, CL_MEM_READ_WRITE, vbo, &(this->_err));
+//	this->_particles = clCreateBuffer(ctx, CL_MEM_READ_WRITE, sizeof(cl_float) * 1024, NULL, &(this->_err));
 	checkCLError(this->_err, "creating buffer");
 
 	std::cout << "set arg" << std::endl;
@@ -49,12 +61,14 @@ void			OpenCLTask::setKernelArg(cl_context ctx, GLuint vbo)
 	checkCLError(this->_err, "setting kernel arg");
 }
 
-void			OpenCLTask::launchKernel(cl_command_queue queue, GLuint nbParticle)
+void			OpenCLTask::launchKernel(cl_command_queue queue)
 {
-	size_t									global_size = nbParticle;
+//	size_t									global_size = nbParticle;
 
-	this->_err = clEnqueueNDRangeKernel(queue, this->_kernel, 1, NULL, &global_size, 
-			NULL, 0, NULL, NULL); 
+	printf("global: %lu\nlocal: %lu\n", (this->_globalWorkSize), (this->_localWorkSize));
+	this->_err = clEnqueueNDRangeKernel(queue, this->_kernel, 1, NULL,
+										&(this->_globalWorkSize), &(this->_localWorkSize),
+										0, NULL, NULL); 
 	checkCLError(this->_err, "enqueuing kernel");
 }
 

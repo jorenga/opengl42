@@ -24,9 +24,11 @@ void					OpenGLScene::createShaderProg(std::string VSFile, std::string FSFile)
 
 void					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project)
 {
+	glBindVertexArray(this->_vao);
 	this->addMatricesToProgram(this->_shader->getProgram(), *(this->_modelMatrix), view, project);
 	glDrawArrays(GL_POINTS, 0, this->_nbParticles);
 	glFinish();
+	glBindVertexArray(0);
 }
 
 void					OpenGLScene::addMatricesToProgram(GLuint progID, OpenGLMatrix model, OpenGLMatrix view, OpenGLMatrix project)
@@ -58,13 +60,14 @@ void					OpenGLScene::initVbo()
 	glBindVertexArray(this->_vao);
 	glGenBuffers(1, this->_vbo);
 
+std::cout << "vbo create val: " << this->_vbo[0] << std::endl;
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * this->_nbParticles, NULL, GL_STREAM_DRAW);
 	attrloc = glGetAttribLocation(this->_shader->getProgram(), "in_Position");
 	glVertexAttribPointer(attrloc, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(attrloc);
 
-//	glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 GLuint				OpenGLScene::getVbo()

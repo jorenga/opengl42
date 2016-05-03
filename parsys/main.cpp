@@ -2,7 +2,7 @@
 
 int						main()
 {
-	OpenCLSimulation	*sim = new OpenCLSimulation(1000);
+	OpenCLSimulation	*sim = new OpenCLSimulation(1024);
 	
 	std::cout << "==OpenCL Simulation==" << std::endl;
 	sim->runSimulation();

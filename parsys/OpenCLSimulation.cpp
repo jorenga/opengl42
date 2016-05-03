@@ -26,6 +26,48 @@ OpenCLSimulation::~OpenCLSimulation()
 
 }
 
+ void            getDeviceInfo(cl_device_id d)
+ {
+     char*       value;
+     size_t      valueSize;
+     cl_uint     maxComputeUnits;
+
+         std::cout << "Device id: " << d << std::endl;
+
+         // print device name
+         clGetDeviceInfo(d, CL_DEVICE_NAME, 0, NULL, &valueSize);
+         value = (char*) malloc(valueSize);
+         clGetDeviceInfo(d, CL_DEVICE_NAME, valueSize, value, NULL);
+         std::cout << "\tDevice name: " << value << std::endl;
+         free(value);
+
+         // print hardware device version
+         clGetDeviceInfo(d, CL_DEVICE_VERSION, 0, NULL, &valueSize);
+         value = (char*) malloc(valueSize);
+         clGetDeviceInfo(d, CL_DEVICE_VERSION, valueSize, value, NULL);
+         std::cout << "\tHardware version: " << value << std::endl;
+         free(value);
+
+         // print software driver version
+         clGetDeviceInfo(d, CL_DRIVER_VERSION, 0, NULL, &valueSize);
+         value = (char*) malloc(valueSize);
+         clGetDeviceInfo(d, CL_DRIVER_VERSION, valueSize, value, NULL);
+         std::cout << "\tSoftware version: " << value << std::endl;
+         free(value);
+
+         // print c version supported by compiler for device
+         clGetDeviceInfo(d, CL_DEVICE_OPENCL_C_VERSION, 0, NULL, &valueSize);
+         value = (char*) malloc(valueSize);
+         clGetDeviceInfo(d, CL_DEVICE_OPENCL_C_VERSION, valueSize, value, NULL);
+         std::cout << "\tOpenCL C version: " << value << std::endl;
+         free(value);
+
+         // print parallel compute units
+         clGetDeviceInfo(d, CL_DEVICE_MAX_COMPUTE_UNITS,
+                 sizeof(maxComputeUnits), &maxComputeUnits, NULL);
+         std::cout << "\tParallel compute units: " << maxComputeUnits << std::endl << std::endl;
+ }
+
 void							OpenCLSimulation::createContext()
 {
 //	cl_uint						platformIdCount = 0;
@@ -80,6 +122,7 @@ void							OpenCLSimulation::createContext()
                 NULL);
 	checkCLError(err, "binding context to device");
 
+getDeviceInfo(this->_device);
 
 	/*	Create Command Queue	*/
 	this->_queue = clCreateCommandQueue(this->_ctx, this->_device, 0, &err);
@@ -89,11 +132,11 @@ void							OpenCLSimulation::createContext()
 void					OpenCLSimulation::initSimulation()
 {
 	std::cout << "Create new Task" << std::endl;
-	this->_task = new OpenCLTask();
+	this->_task = new OpenCLTask(this->_nbParticle);
 	std::cout << "Create Program" << std::endl;
 	this->_task->createProgram("program.cl", this->_ctx, this->_device);
 	std::cout << "Create Kernel" << std::endl;
-	this->_task->createKernel("init");
+	this->_task->createKernel("init", this->_device);
 	std::cout << "Set Kernel Arg" << std::endl;
 	this->_task->setKernelArg(this->_ctx, this->_glScene->getVbo());
 }
@@ -101,7 +144,8 @@ void					OpenCLSimulation::initSimulation()
 void					OpenCLSimulation::launchSimulation()
 {
 	this->_task->acquireGLObject(this->_queue);
-	this->_task->launchKernel(this->_queue, this->_nbParticle);
+	this->_task->launchKernel(this->_queue);
+//	this->_task->launchKernel(this->_queue, this->_nbParticle);
 //	this->_task->readMem(this->_queue, this->_nbParticle);
 	this->_task->releaseGLObject(this->_queue);
 	clFinish(this->_queue);

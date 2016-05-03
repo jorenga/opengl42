@@ -8,24 +8,28 @@ void					OpenGLManager::createProjectionMatrix(void)
 
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
-	t_user_ptr				*ptr;
+//	t_user_ptr				*ptr;
 
-	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
-	ptr->winInfo->width = w;
-	ptr->winInfo->height = h;
-    glViewport(0, 0, w, h);
+	(void)window;
+	(void)w;
+	(void)h;
+//	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
+//	ptr->winInfo->width = w;
+//	ptr->winInfo->height = h;
+ //   glViewport(0, 0, w, h);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	t_user_ptr				*ptr;
-	float					alpha = 0.5235f;
+//	t_user_ptr				*ptr;
+//	float					alpha = 0.5235f;
 
 	(void)scancode;
-	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
+	(void)mods;
+//	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-	if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
+/*	if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	else if (action == GLFW_PRESS)
 	{
@@ -48,15 +52,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 				ptr->model->rotateY(-alpha);
 		}
 	}
-	ptr->camera->controlKey(key, action, mods);
+	ptr->camera->controlKey(key, action, mods);*/
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xPos, double yPos)
 {
-	t_user_ptr				*ptr;
+	//t_user_ptr				*ptr;
 	
-	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
-	ptr->camera->controlMouse(xPos, yPos);
+	(void)window;
+	(void)xPos;
+	(void)yPos;
+	//ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
+	//ptr->camera->controlMouse(xPos, yPos);
 }
 
 void error_callback(int error, const char* description)
@@ -91,7 +98,7 @@ void				OpenGLManager::initOpenGl( void )
     glfwSetFramebufferSizeCallback(this->_window, framebuffer_size_callback);
     glfwSetKeyCallback(this->_window, key_callback);
     glfwSetCursorPosCallback(this->_window, cursor_position_callback);
-	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
+//	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
     glfwMakeContextCurrent(this->_window);
     glfwSwapInterval(1);
 
