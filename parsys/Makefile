@@ -6,13 +6,25 @@ SRC= main.cpp \
 	 OpenCLError.cpp \
 	 OpenCLSimulation.cpp \
 	 OpenCLTask.cpp \
+	 Matrix.cpp \
+	 OpenGLManager.cpp \
+	 OpenGLMatrix.cpp \
+	 OpenGLScene.cpp \
+	 OpenGLShader.cpp \
 	 Timer.cpp
 
 OBJ= $(SRC:.cpp=.o)
 
-LIB=
+INC=	-I includes -I includes/GLFW
+LIB=	-L libs/ -lglad -lglfw3
 
-FRWK=	-framework OpenCL
+FRWK=	-framework OpenCL \
+		-framework AGL \
+		-framework Cocoa \
+		-framework OpenGL \
+		-framework IOKit \
+		-framework CoreFoundation \
+		-framework CoreVideo
 
 .PHONY: clean fclean re
 .SILENT:

@@ -10,19 +10,24 @@
 class							OpenCLSimulation
 {
 	public:
-								OpenCLSimulation();
+								OpenCLSimulation(int nbParticle);
 								~OpenCLSimulation();
 		void					createContext();
 
 		void					initSimulation();
 		void					launchSimulation();
-		void					printResult();
+		void					runSimulation();
 
 	private:
 		cl_context				_ctx;
 		cl_command_queue		_queue;
 		cl_device_id			_device;
-		OpenCLTask				*_task;
+		OpenCLTask*				_task;
+		OpenGLManager*			_glMan;
+		OpenGLScene*			_glScene;
+		OpenGLMatrix			_viewMatrix;
+
+		int						_nbParticle;
 };
 
 # endif

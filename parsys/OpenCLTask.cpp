@@ -36,37 +36,20 @@ void			OpenCLTask::createKernel(std::string fnName)
 	checkCLError(this->_err, "creating kernel");
 }
 
-void			OpenCLTask::setKernelArg(cl_context ctx)
+void			OpenCLTask::setKernelArg(cl_context ctx, GLuint vbo)
 {
-	std::vector<float>in(10000);
-	for (int i = 0 ; i < 10000 ; i++) {
-		in[i] = 2.0f;
-	}
 
-	this->_inBuf = clCreateBuffer(ctx, CL_MEM_COPY_HOST_PTR,
-								  sizeof(float) * (in.size()), in.data(), &(this->_err));
+	this->_particles = clCreateFromGLBuffer(ctx, CL_MEM_READ_WRITE, vbo, &(this->_err));
 	checkCLError(this->_err, "creating buffer");
 
 	// Kernel arg
-	this->_err = clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &(this->_inBuf));
+	this->_err = clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &(this->_particles));
 	checkCLError(this->_err, "setting kernel arg");
 }
 
-void			OpenCLTask::readOut(cl_command_queue queue)
+void			OpenCLTask::launchKernel(cl_command_queue queue, GLuint nbParticle)
 {
-	std::vector<float>out(10000);
-
-	this->_err = clEnqueueReadBuffer(queue, this->_inBuf, CL_TRUE, 0, 
-			sizeof(float)*10000, out.data(), 0, NULL, NULL);
-	checkCLError(this->_err, "reading res buffer");
-
-	for (int i = 0; i < 50 ; i++)
-		std::cout << out[i] << std::endl;
-}
-
-void			OpenCLTask::launchKernel(cl_command_queue queue)
-{
-	size_t									global_size = 10000;
+	size_t									global_size = nbParticle;
 
 	this->_err = clEnqueueNDRangeKernel(queue, this->_kernel, 1, NULL, &global_size, 
 			NULL, 0, NULL, NULL); 
