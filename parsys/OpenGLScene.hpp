@@ -3,28 +3,31 @@
 
 # include <map>
 # include <vector>
-# include "OpenCL.hpp"
 # include "OpenGLShader.hpp"
+# include "OpenGLMatrix.hpp"
 
 class							OpenGLScene
 {
 	public:
 								OpenGLScene();
 								~OpenGLScene();
-		int						createShaderProg(std::string VSFile, std::string FSFile);
+		void					createShaderProg(std::string VSFile, std::string FSFile);
 
-		int						drawScene(OpenGLMatrix view, OpenGLMatrix project, float t);
+		void					drawScene(OpenGLMatrix view, OpenGLMatrix project);
 		void					addMatricesToProgram(GLuint progID, OpenGLMatrix model,
-										OpenGLMatrix view, OpenGLMatrix project);
-void					OpenGLScene::initVbo();
+													OpenGLMatrix view, OpenGLMatrix project);
+		void					initVbo();
+		
 		OpenGLMatrix*			getModelMatrix();
+		GLuint					getVbo();
+
 
 	private:
 		OpenGLShader*			_shader;
 		GLuint					_vao;
 		GLuint					_vbo[2];
 
-		OpenGLMatrix			_modelMatrix;
+		OpenGLMatrix			*_modelMatrix;
 		OpenGLMatrix			_projectionMatrix;
 		GLuint					_nbParticles;
 };

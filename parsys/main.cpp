@@ -2,11 +2,11 @@
 
 int						main()
 {
-	OpenCLSimulation	*sim = new OpenCLSimulation();
+	OpenCLSimulation	*sim = new OpenCLSimulation(1000);
 	
-	sim->createContext();
-	sim->initSimulation();
-	sim->launchSimulation();
-	sim->printResult();
+	std::cout << "==OpenCL Simulation==" << std::endl;
+	sim->runSimulation();
+	std::cout << "==END==" << std::endl;
+	delete sim;
 	return (0);
 }

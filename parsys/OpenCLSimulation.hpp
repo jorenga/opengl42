@@ -6,6 +6,8 @@
 # include "OpenCLInc.hpp"
 # include "OpenCLError.hpp"
 # include "OpenCLTask.hpp"
+# include "OpenGLManager.hpp"
+# include "OpenGLScene.hpp"
 
 class							OpenCLSimulation
 {
@@ -22,6 +24,7 @@ class							OpenCLSimulation
 		cl_context				_ctx;
 		cl_command_queue		_queue;
 		cl_device_id			_device;
+		cl_int					_deviceNb;
 		OpenCLTask*				_task;
 		OpenGLManager*			_glMan;
 		OpenGLScene*			_glScene;

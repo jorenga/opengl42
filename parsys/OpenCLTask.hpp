@@ -18,6 +18,9 @@ class							OpenCLTask
 		void					createKernel(std::string fnName);
 		void					setKernelArg(cl_context ctx, GLuint vbo);
 		void					launchKernel(cl_command_queue queue, GLuint nbParticle);
+		void					acquireGLObject(cl_command_queue queue);
+		void					releaseGLObject(cl_command_queue queue);
+		void					readMem(cl_command_queue queue, GLuint nbParticle);
 
 	private:
 		cl_int					_err;

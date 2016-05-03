@@ -2,7 +2,9 @@
 
 OpenCLTask::OpenCLTask() {}
 
-OpenCLTask::~OpenCLTask() {}
+OpenCLTask::~OpenCLTask() {
+	clReleaseMemObject(this->_particles);
+}
 
 const char		*getSourceContent(std::string filename)
 {
@@ -38,11 +40,11 @@ void			OpenCLTask::createKernel(std::string fnName)
 
 void			OpenCLTask::setKernelArg(cl_context ctx, GLuint vbo)
 {
-
+	std::cout << "create buffer" << std::endl;
 	this->_particles = clCreateFromGLBuffer(ctx, CL_MEM_READ_WRITE, vbo, &(this->_err));
 	checkCLError(this->_err, "creating buffer");
 
-	// Kernel arg
+	std::cout << "set arg" << std::endl;
 	this->_err = clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &(this->_particles));
 	checkCLError(this->_err, "setting kernel arg");
 }
@@ -54,4 +56,30 @@ void			OpenCLTask::launchKernel(cl_command_queue queue, GLuint nbParticle)
 	this->_err = clEnqueueNDRangeKernel(queue, this->_kernel, 1, NULL, &global_size, 
 			NULL, 0, NULL, NULL); 
 	checkCLError(this->_err, "enqueuing kernel");
+}
+
+void			OpenCLTask::acquireGLObject(cl_command_queue queue)
+{
+	clEnqueueAcquireGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
+}
+
+void			OpenCLTask::releaseGLObject(cl_command_queue queue)
+{
+	clEnqueueReleaseGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
+}
+
+void			OpenCLTask::readMem(cl_command_queue queue, GLuint nbParticle)
+{
+	std::vector<float>	out(nbParticle*4);
+
+	this->_err = clEnqueueReadBuffer(queue, this->_particles, CL_TRUE, 0, 
+			sizeof(float)*4*nbParticle, out.data(), 0, NULL, NULL);
+	checkCLError(this->_err, "reading buffer");
+
+	for (float f : out) {
+		for (int i = 0 ; i < 4 ; i++) {
+			std::cout << f << " ";
+		}
+		std::cout << std::endl;
+	}
 }

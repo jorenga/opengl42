@@ -96,6 +96,7 @@ void				OpenGLManager::initOpenGl( void )
     glfwSwapInterval(1);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 	glDepthFunc(GL_LESS);
 	glfwGetFramebufferSize(this->_window, &(width), &(height));
     glViewport(0, 0, width, height);

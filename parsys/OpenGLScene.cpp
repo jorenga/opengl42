@@ -2,30 +2,31 @@
 
 OpenGLScene::OpenGLScene()
 {
+	this->_modelMatrix = new OpenGLMatrix;
+	this->_modelMatrix->translate(0, 0, -5);
 }
 
 OpenGLScene::~OpenGLScene()
 {
+	delete this->_modelMatrix;
 }
 
-int					OpenGLScene::addShaderProg(std::string VSFile, std::string FSFile)
+void					OpenGLScene::createShaderProg(std::string VSFile, std::string FSFile)
 {
 	this->_shader = new OpenGLShader;
-	shader->addShader(GL_VERTEX_SHADER, VSFile);
-	shader->addShader(GL_FRAGMENT_SHADER , FSFile);
-	if (!shader->createProgram())
-		return (-1);
+	this->_shader->addShader(GL_VERTEX_SHADER, VSFile);
+	this->_shader->addShader(GL_FRAGMENT_SHADER , FSFile);
+	if (!this->_shader->createProgram())
+		return ;
 	glUseProgram(this->_shader->getProgram());
 	std::cout << "Program created: " << this->_shader->getProgram() << std::endl;
-	return (this->_progID - 1);
 }
 
-int					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project)
+void					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project)
 {
-	this->addMatricesToProgram(this->_shader->getProgram(), this->_modelMatrix, view, project);
-	glDrawElements(GL_POINTS, this->_nbParticles, GL_UNSIGNED_INT, 0);
+	this->addMatricesToProgram(this->_shader->getProgram(), *(this->_modelMatrix), view, project);
+	glDrawArrays(GL_POINTS, 0, this->_nbParticles);
 	glFinish();
-	return (1);
 }
 
 void					OpenGLScene::addMatricesToProgram(GLuint progID, OpenGLMatrix model, OpenGLMatrix view, OpenGLMatrix project)
@@ -50,7 +51,9 @@ OpenGLMatrix*		OpenGLScene::getModelMatrix()
 
 void					OpenGLScene::initVbo()
 {
-	std::cout << "binding vbo to program: " << program << std::endl; 
+	GLuint				attrloc;
+
+	std::cout << "binding vbo to program: " << this->_shader->getProgram() << std::endl; 
 	glGenVertexArrays(1, &(this->_vao));
 	glBindVertexArray(this->_vao);
 	glGenBuffers(1, this->_vbo);
@@ -64,7 +67,7 @@ void					OpenGLScene::initVbo()
 //	glBindVertexArray(0);
 }
 
-void				OpenGLScene::getVbo()
+GLuint				OpenGLScene::getVbo()
 {
 	return this->_vbo[0];
 }
