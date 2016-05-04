@@ -1,9 +1,9 @@
 #include "OpenGLScene.hpp"
 
-OpenGLScene::OpenGLScene()
+OpenGLScene::OpenGLScene(int nbParticles) : _nbParticles(nbParticles)
 {
 	this->_modelMatrix = new OpenGLMatrix;
-	this->_modelMatrix->translate(0, 0, -5);
+	this->_modelMatrix->translate(0, 0, -50);
 }
 
 OpenGLScene::~OpenGLScene()
@@ -27,8 +27,8 @@ void					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project)
 	glBindVertexArray(this->_vao);
 	this->addMatricesToProgram(this->_shader->getProgram(), *(this->_modelMatrix), view, project);
 	glDrawArrays(GL_POINTS, 0, this->_nbParticles);
-	glFinish();
 	glBindVertexArray(0);
+	glFinish();
 }
 
 void					OpenGLScene::addMatricesToProgram(GLuint progID, OpenGLMatrix model, OpenGLMatrix view, OpenGLMatrix project)
@@ -60,7 +60,7 @@ void					OpenGLScene::initVbo()
 	glBindVertexArray(this->_vao);
 	glGenBuffers(1, this->_vbo);
 
-std::cout << "vbo create val: " << this->_vbo[0] << std::endl;
+std::cout << "vbo create val: " << this->_vbo[0] << " " << this->_nbParticles << std::endl;
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * this->_nbParticles, NULL, GL_STREAM_DRAW);
 	attrloc = glGetAttribLocation(this->_shader->getProgram(), "in_Position");

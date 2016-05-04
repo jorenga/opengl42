@@ -9,7 +9,7 @@
 class							OpenGLScene
 {
 	public:
-								OpenGLScene();
+								OpenGLScene(int nbParticles);
 								~OpenGLScene();
 		void					createShaderProg(std::string VSFile, std::string FSFile);
 

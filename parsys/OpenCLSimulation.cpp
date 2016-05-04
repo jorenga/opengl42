@@ -5,7 +5,7 @@ OpenCLSimulation::OpenCLSimulation(int nbParticle) : _nbParticle(nbParticle)
 	std::cout << "Init OpenGL Manager" << std::endl;
 	this->_glMan = new OpenGLManager(1024, 1024, "ps goodness");
 	std::cout << "Init OpenGL Scene" << std::endl;
-	this->_glScene = new OpenGLScene();
+	this->_glScene = new OpenGLScene(nbParticle);
 	std::cout << "Create Shader Program" << std::endl;
 	this->_glScene->createShaderProg("vs.glsl", "fs.glsl");
 	std::cout << "Init Vbo" << std::endl;
@@ -26,48 +26,6 @@ OpenCLSimulation::~OpenCLSimulation()
 	delete this->_glMan;
 
 }
-
- void            getDeviceInfo(cl_device_id d)
- {
-     char*       value;
-     size_t      valueSize;
-     cl_uint     maxComputeUnits;
-
-         std::cout << "Device id: " << d << std::endl;
-
-         // print device name
-         clGetDeviceInfo(d, CL_DEVICE_NAME, 0, NULL, &valueSize);
-         value = (char*) malloc(valueSize);
-         clGetDeviceInfo(d, CL_DEVICE_NAME, valueSize, value, NULL);
-         std::cout << "\tDevice name: " << value << std::endl;
-         free(value);
-
-         // print hardware device version
-         clGetDeviceInfo(d, CL_DEVICE_VERSION, 0, NULL, &valueSize);
-         value = (char*) malloc(valueSize);
-         clGetDeviceInfo(d, CL_DEVICE_VERSION, valueSize, value, NULL);
-         std::cout << "\tHardware version: " << value << std::endl;
-         free(value);
-
-         // print software driver version
-         clGetDeviceInfo(d, CL_DRIVER_VERSION, 0, NULL, &valueSize);
-         value = (char*) malloc(valueSize);
-         clGetDeviceInfo(d, CL_DRIVER_VERSION, valueSize, value, NULL);
-         std::cout << "\tSoftware version: " << value << std::endl;
-         free(value);
-
-         // print c version supported by compiler for device
-         clGetDeviceInfo(d, CL_DEVICE_OPENCL_C_VERSION, 0, NULL, &valueSize);
-         value = (char*) malloc(valueSize);
-         clGetDeviceInfo(d, CL_DEVICE_OPENCL_C_VERSION, valueSize, value, NULL);
-         std::cout << "\tOpenCL C version: " << value << std::endl;
-         free(value);
-
-         // print parallel compute units
-         clGetDeviceInfo(d, CL_DEVICE_MAX_COMPUTE_UNITS,
-                 sizeof(maxComputeUnits), &maxComputeUnits, NULL);
-         std::cout << "\tParallel compute units: " << maxComputeUnits << std::endl << std::endl;
- }
 
 void							OpenCLSimulation::createContext()
 {
@@ -122,8 +80,6 @@ void							OpenCLSimulation::createContext()
                 &(this->_device),
                 NULL);
 	checkCLError(err, "binding context to device");
-
-getDeviceInfo(this->_device);
 
 	/*	Create Command Queue	*/
 	this->_queue = clCreateCommandQueue(this->_ctx, this->_device, 0, &err);

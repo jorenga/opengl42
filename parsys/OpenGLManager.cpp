@@ -114,7 +114,8 @@ OpenGLManager::OpenGLManager()
 	_winInfo.width = 512;
 	_winInfo.height = 512;
 	_winInfo.winName = "Untitled";
-	_clipInfo.fov = 45;
+//	_clipInfo.fov = 45;
+	_clipInfo.fov = 0.785f;
 	_clipInfo.aspect = 1;
 	_clipInfo.zNear = 0.1;
 	_clipInfo.zFar = 10000;

@@ -8,6 +8,17 @@ void				add_matrices(GLuint prog, float *m, float *p, t_input *i)
 	GLint			uloc_tex;
 	GLint			uloc_map;
 
+	printf("p:");
+	int a = 0;
+	while (a < 16)
+	{
+		for (int j = 0; j < 4 ; j++)
+		{
+			printf("%f ", p[a]);
+			a++;
+		}
+		printf("\n");
+	}
 	uloc_m = glGetUniformLocation(prog, "M");
 	uloc_p = glGetUniformLocation(prog, "P");
 	uloc_anim = glGetUniformLocation(prog, "c");
