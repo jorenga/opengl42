@@ -4,6 +4,8 @@ OpenCLTask::OpenCLTask(int nbParticle) : _nbParticle(nbParticle) {}
 
 OpenCLTask::~OpenCLTask() {
 	clReleaseMemObject(this->_particles);
+	clReleaseKernel(this->_kernel);
+	clReleaseProgram(this->_program);
 }
 
 const char		*getSourceContent(std::string filename)

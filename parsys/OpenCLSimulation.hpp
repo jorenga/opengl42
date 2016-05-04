@@ -3,11 +3,11 @@
 
 # include <vector>
 # include <string>
+# include "OpenGLManager.hpp"
+# include "OpenGLScene.hpp"
 # include "OpenCLInc.hpp"
 # include "OpenCLError.hpp"
 # include "OpenCLTask.hpp"
-# include "OpenGLManager.hpp"
-# include "OpenGLScene.hpp"
 
 class							OpenCLSimulation
 {

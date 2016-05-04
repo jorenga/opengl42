@@ -4,14 +4,14 @@ OpenCLSimulation::OpenCLSimulation(int nbParticle) : _nbParticle(nbParticle)
 {
 	std::cout << "Init OpenGL Manager" << std::endl;
 	this->_glMan = new OpenGLManager(1024, 1024, "ps goodness");
-	std::cout << "Create CL Context" << std::endl;
-	this->createContext();
 	std::cout << "Init OpenGL Scene" << std::endl;
 	this->_glScene = new OpenGLScene();
 	std::cout << "Create Shader Program" << std::endl;
 	this->_glScene->createShaderProg("vs.glsl", "fs.glsl");
 	std::cout << "Init Vbo" << std::endl;
 	this->_glScene->initVbo();
+	std::cout << "Create CL Context" << std::endl;
+	this->createContext();
 	std::cout << "Init Simulation" << std::endl;
 	this->initSimulation();
 	std::cout << "Simulation Initialized" << std::endl;
@@ -20,6 +20,7 @@ OpenCLSimulation::OpenCLSimulation(int nbParticle) : _nbParticle(nbParticle)
 OpenCLSimulation::~OpenCLSimulation()
 {
 	delete this->_task;
+	clReleaseCommandQueue(this->_queue);
 	clReleaseContext(this->_ctx);
 	delete this->_glScene;
 	delete this->_glMan;
