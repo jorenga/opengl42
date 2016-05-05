@@ -19,12 +19,17 @@ class							OpenCLSimulation
 		void					initSimulation();
 		void					launchSimulation();
 		void					runSimulation();
+		void					acquireGLObject(cl_command_queue queue);
+		void					releaseGLObject(cl_command_queue queue);
+		void					initCLMem(GLuint vbo);
 
 	private:
+		cl_int					_err;
 		cl_context				_ctx;
 		cl_command_queue		_queue;
 		cl_device_id			_device;
 		cl_int					_deviceNb;
+		cl_mem					_particles;
 		OpenCLTask*				_task;
 		OpenGLManager*			_glMan;
 		OpenGLScene*			_glScene;

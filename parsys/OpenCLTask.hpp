@@ -16,17 +16,16 @@ class							OpenCLTask
 								~OpenCLTask();
 		void					createProgram(std::string filename, cl_context ctx, cl_device_id device);
 		void					createKernel(std::string fnName, cl_device_id device);
-		void					setKernelArg(cl_context ctx, GLuint vbo);
+		void					setKernelArg(cl_context ctx, GLuint vbo, cl_mem particles);
 		void					launchKernel(cl_command_queue queue);
-		void					acquireGLObject(cl_command_queue queue);
-		void					releaseGLObject(cl_command_queue queue);
-		void					readMem(cl_command_queue queue, GLuint nbParticle);
+	//	void					acquireGLObject(cl_command_queue queue);
+	//	void					releaseGLObject(cl_command_queue queue);
 
 	private:
 		cl_int					_err;
 		cl_program				_program;
 		cl_kernel				_kernel;
-		cl_mem					_particles;
+//		cl_mem					_particles;
 		int						_nbParticle;
 		size_t					_localWorkSize;
 		size_t					_globalWorkSize;

@@ -29,25 +29,10 @@ OpenCLSimulation::~OpenCLSimulation()
 
 void							OpenCLSimulation::createContext()
 {
-//	cl_uint						platformIdCount = 0;
-//	cl_uint						deviceIdCount = 0;
 	cl_int						err;
-//	std::vector<cl_platform_id>				platformIds;
-//	std::vector<cl_device_id>				deviceIds;
 	CGLContextObj					kCGLContext = CGLGetCurrentContext();
     CGLShareGroupObj				kCGLShareGroup = CGLGetShareGroup(kCGLContext);
 
-	/*	Get Platform And Device		*/
-/*	clGetPlatformIDs(0, nullptr, &platformIdCount);
-	platformIds.resize(platformIdCount);
-	clGetPlatformIDs(platformIdCount, platformIds.data(), nullptr);
-
-	clGetDeviceIDs(platformIds[0], CL_DEVICE_TYPE_GPU, 0, nullptr, &deviceIdCount);
-	deviceIds.resize(deviceIdCount);
-	clGetDeviceIDs(platformIds[0], CL_DEVICE_TYPE_GPU, deviceIdCount, deviceIds.data(), nullptr);
-	this->_device = deviceIds[0];
-*/
-	/*	Create context		*/
 	cl_context_properties			properties[] =
 	{
 		CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
@@ -55,30 +40,18 @@ void							OpenCLSimulation::createContext()
 		0
 	};
 
-/*	this->_ctx = clCreateContext(properties, 1, &(this->_device),
-									nullptr, nullptr, &error);
-	checkCLError(error, "building context");
-*/
-
-
     this->_ctx = clCreateContext(properties, 0, 0, NULL, NULL, &err);
     checkCLError(err, "building context");
-    err = clGetContextInfo(this->_ctx,
-                CL_CONTEXT_NUM_DEVICES,
-                sizeof(cl_int),
-                &(this->_deviceNb),
-                NULL);
+    err = clGetContextInfo(this->_ctx, CL_CONTEXT_NUM_DEVICES,
+              				sizeof(cl_int), &(this->_deviceNb), NULL);
 	checkCLError(err, "context info");
 
     if (this->_deviceNb < 1) {
 		checkCLError(-1, "not enough devices");
     }
 
-    err = clGetContextInfo(this->_ctx,
-                CL_CONTEXT_DEVICES,
-                sizeof(cl_device_id),
-                &(this->_device),
-                NULL);
+    err = clGetContextInfo(this->_ctx,CL_CONTEXT_DEVICES,
+						sizeof(cl_device_id), &(this->_device), NULL);
 	checkCLError(err, "binding context to device");
 
 	/*	Create Command Queue	*/
@@ -94,17 +67,17 @@ void					OpenCLSimulation::initSimulation()
 	this->_task->createProgram("program.cl", this->_ctx, this->_device);
 	std::cout << "Create Kernel" << std::endl;
 	this->_task->createKernel("init", this->_device);
+	std::cout << "Init cl_mem" << std::endl;
+	this->initCLMem(this->_glScene->getVbo());
 	std::cout << "Set Kernel Arg" << std::endl;
-	this->_task->setKernelArg(this->_ctx, this->_glScene->getVbo());
+	this->_task->setKernelArg(this->_ctx, this->_glScene->getVbo(), this->_particles);
 }
 
 void					OpenCLSimulation::launchSimulation()
 {
-	this->_task->acquireGLObject(this->_queue);
+	this->acquireGLObject(this->_queue);
 	this->_task->launchKernel(this->_queue);
-//	this->_task->launchKernel(this->_queue, this->_nbParticle);
-//	this->_task->readMem(this->_queue, this->_nbParticle);
-	this->_task->releaseGLObject(this->_queue);
+	this->releaseGLObject(this->_queue);
 	clFinish(this->_queue);
 }
 
@@ -124,4 +97,20 @@ void					OpenCLSimulation::runSimulation()
 		this->_glMan->swap();
 		glfwPollEvents();
 	}
+}
+
+void				OpenCLSimulation::acquireGLObject(cl_command_queue queue)
+{
+	clEnqueueAcquireGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
+}
+
+void				OpenCLSimulation::releaseGLObject(cl_command_queue queue)
+{
+	clEnqueueReleaseGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
+}
+
+void				OpenCLSimulation::initCLMem(GLuint vbo)
+{
+	this->_particles = clCreateFromGLBuffer(this->_ctx, CL_MEM_READ_WRITE, vbo, &(this->_err));
+	checkCLError(this->_err, "creating buffer");
 }
