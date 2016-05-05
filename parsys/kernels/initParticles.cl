@@ -6,9 +6,9 @@ __kernel void	initParticles(__global float4 *particles)
 	if (i  >= MAXGID)
 		return ;
 
-	x = i % 10 - 5.0f;
-	y = int(i / 100.0f) - 5.0f;
-	z = int((i % 100) / 10.0f) - 5.0f;
+	x = i % int(PPERLINE) - (PPERLINE / 2);
+	y = int(i / int(PPERLINE * PPERLINE)) - (PPERLINE / 2);
+	z = int((i % int(PPERLINE * PPERLINE)) / PPERLINE) - (PPERLINE / 2);
 	w = 1.0f;
 
 	particles[i] = (float4) (x, y, z, w);

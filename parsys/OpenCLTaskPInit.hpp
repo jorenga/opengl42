@@ -1,6 +1,7 @@
 #ifndef OPENCLTASKPINIT_HPP
 # define OPENCLTASKPINIT_HPP
 
+# include <cmath>
 # include "OpenCLTask.hpp"
 
 class							OpenCLTaskPInit : public OpenCLTask
