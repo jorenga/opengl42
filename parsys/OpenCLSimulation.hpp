@@ -7,20 +7,22 @@
 # include "OpenGLScene.hpp"
 # include "OpenCLInc.hpp"
 # include "OpenCLError.hpp"
-# include "OpenCLTask.hpp"
+# include "OpenCLTaskPInit.hpp"
 
 class							OpenCLSimulation
 {
 	public:
-								OpenCLSimulation(int nbParticle);
+								OpenCLSimulation(int nbParticles);
 								~OpenCLSimulation();
-		void					createContext();
 
 		void					initSimulation();
 		void					launchSimulation();
 		void					runSimulation();
-		void					acquireGLObject(cl_command_queue queue);
-		void					releaseGLObject(cl_command_queue queue);
+
+	private:
+		void					createContext();
+		void					acquireGLObject();
+		void					releaseGLObject();
 		void					initCLMem(GLuint vbo);
 
 	private:
@@ -30,12 +32,12 @@ class							OpenCLSimulation
 		cl_device_id			_device;
 		cl_int					_deviceNb;
 		cl_mem					_particles;
-		OpenCLTask*				_task;
+		OpenCLTaskPInit*		_task;
 		OpenGLManager*			_glMan;
 		OpenGLScene*			_glScene;
 		OpenGLMatrix			_viewMatrix;
 
-		int						_nbParticle;
+		int						_nbParticles;
 };
 
 # endif

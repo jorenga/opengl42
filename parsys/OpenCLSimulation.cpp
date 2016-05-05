@@ -1,30 +1,28 @@
 #include "OpenCLSimulation.hpp"
 
-OpenCLSimulation::OpenCLSimulation(int nbParticle) : _nbParticle(nbParticle)
+OpenCLSimulation::OpenCLSimulation(int nbParticles) : _nbParticles(nbParticles)
 {
 	std::cout << "Init OpenGL Manager" << std::endl;
 	this->_glMan = new OpenGLManager(1024, 1024, "ps goodness");
 	std::cout << "Init OpenGL Scene" << std::endl;
-	this->_glScene = new OpenGLScene(nbParticle);
-	std::cout << "Create Shader Program" << std::endl;
+	this->_glScene = new OpenGLScene(nbParticles);
 	this->_glScene->createShaderProg("vs.glsl", "fs.glsl");
-	std::cout << "Init Vbo" << std::endl;
 	this->_glScene->initVbo();
 	std::cout << "Create CL Context" << std::endl;
 	this->createContext();
-	std::cout << "Init Simulation" << std::endl;
+	this->initCLMem(this->_glScene->getVbo());
 	this->initSimulation();
 	std::cout << "Simulation Initialized" << std::endl;
 }
 
 OpenCLSimulation::~OpenCLSimulation()
 {
+	clReleaseMemObject(this->_particles);
 	delete this->_task;
 	clReleaseCommandQueue(this->_queue);
 	clReleaseContext(this->_ctx);
 	delete this->_glScene;
 	delete this->_glMan;
-
 }
 
 void							OpenCLSimulation::createContext()
@@ -54,30 +52,24 @@ void							OpenCLSimulation::createContext()
 						sizeof(cl_device_id), &(this->_device), NULL);
 	checkCLError(err, "binding context to device");
 
-	/*	Create Command Queue	*/
 	this->_queue = clCreateCommandQueue(this->_ctx, this->_device, 0, &err);
 	checkCLError(err, "creating command queue");
 }
 
 void					OpenCLSimulation::initSimulation()
 {
-	std::cout << "Create new Task" << std::endl;
-	this->_task = new OpenCLTask(this->_nbParticle);
-	std::cout << "Create Program" << std::endl;
-	this->_task->createProgram("program.cl", this->_ctx, this->_device);
-	std::cout << "Create Kernel" << std::endl;
-	this->_task->createKernel("init", this->_device);
-	std::cout << "Init cl_mem" << std::endl;
-	this->initCLMem(this->_glScene->getVbo());
-	std::cout << "Set Kernel Arg" << std::endl;
-	this->_task->setKernelArg(this->_ctx, this->_glScene->getVbo(), this->_particles);
+	std::cout << "Create pInit Task" << std::endl;
+	this->_task = new OpenCLTaskPInit(this->_nbParticles);
+	this->_task->initTask(this->_ctx, this->_device,
+							"kernels/initParticles.cl", "initParticles");
+	this->_task->setKernelArg(this->_particles);
 }
 
 void					OpenCLSimulation::launchSimulation()
 {
-	this->acquireGLObject(this->_queue);
-	this->_task->launchKernel(this->_queue);
-	this->releaseGLObject(this->_queue);
+	this->acquireGLObject();
+	this->_task->execKernel(this->_queue);
+	this->releaseGLObject();
 	clFinish(this->_queue);
 }
 
@@ -99,14 +91,14 @@ void					OpenCLSimulation::runSimulation()
 	}
 }
 
-void				OpenCLSimulation::acquireGLObject(cl_command_queue queue)
+void				OpenCLSimulation::acquireGLObject()
 {
-	clEnqueueAcquireGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
+	clEnqueueAcquireGLObjects(this->_queue, 1, &(this->_particles), 0, NULL, NULL);
 }
 
-void				OpenCLSimulation::releaseGLObject(cl_command_queue queue)
+void				OpenCLSimulation::releaseGLObject()
 {
-	clEnqueueReleaseGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
+	clEnqueueReleaseGLObjects(this->_queue, 1, &(this->_particles), 0, NULL, NULL);
 }
 
 void				OpenCLSimulation::initCLMem(GLuint vbo)

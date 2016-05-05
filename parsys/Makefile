@@ -1,11 +1,12 @@
 CC=		g++
-FLAGS=	-Wall -Wextra -std=c++11 -O3
+FLAGS=	-Wall -Wextra -std=c++11 -O3 -g
 NAME=	ps
 
 SRC= main.cpp \
 	 OpenCLError.cpp \
 	 OpenCLSimulation.cpp \
 	 OpenCLTask.cpp \
+	 OpenCLTaskPInit.cpp \
 	 Matrix.cpp \
 	 OpenGLManager.cpp \
 	 OpenGLMatrix.cpp \

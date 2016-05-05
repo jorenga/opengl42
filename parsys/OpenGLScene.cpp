@@ -19,7 +19,6 @@ void					OpenGLScene::createShaderProg(std::string VSFile, std::string FSFile)
 	if (!this->_shader->createProgram())
 		return ;
 	glUseProgram(this->_shader->getProgram());
-	std::cout << "Program created: " << this->_shader->getProgram() << std::endl;
 }
 
 void					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project)
@@ -55,12 +54,10 @@ void					OpenGLScene::initVbo()
 {
 	GLuint				attrloc;
 
-	std::cout << "binding vbo to program: " << this->_shader->getProgram() << std::endl; 
 	glGenVertexArrays(1, &(this->_vao));
 	glBindVertexArray(this->_vao);
 	glGenBuffers(1, this->_vbo);
 
-std::cout << "vbo create val: " << this->_vbo[0] << " " << this->_nbParticles << std::endl;
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * this->_nbParticles, NULL, GL_STREAM_DRAW);
 	attrloc = glGetAttribLocation(this->_shader->getProgram(), "in_Position");

@@ -1,10 +1,15 @@
 #ifndef OPENCLTASKPINIT_HPP
 # define OPENCLTASKPINIT_HPP
 
-class							OpenCLTaskPInit
+# include "OpenCLTask.hpp"
+
+class							OpenCLTaskPInit : public OpenCLTask
 {
 	public:
-								OpenCLTaskPInit();
+								OpenCLTaskPInit(int nbParticles);
+								~OpenCLTaskPInit();
+		void					setKernelArg(cl_mem particles);
+		
 };
 
 #endif

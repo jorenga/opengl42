@@ -1,37 +1,65 @@
 #include "OpenCLTask.hpp"
 
-OpenCLTask::OpenCLTask(int nbParticle) : _nbParticle(nbParticle) {}
+OpenCLTask::OpenCLTask(int nbParticles) : _nbParticles(nbParticles)
+{
+	this->_buildOptions.push_back("-Werror");
+	this->_defineOptions.insert(t_makePair("MAXGID", std::to_string(nbParticles)));
+}
 
 OpenCLTask::~OpenCLTask() {
-//	clReleaseMemObject(this->_particles);
 	clReleaseKernel(this->_kernel);
 	clReleaseProgram(this->_program);
 }
 
-const char		*getSourceContent(std::string filename)
+std::string			OpenCLTask::getOptions() {
+	std::string		res = "";
+
+	for (auto &it : this->_buildOptions) {
+		res += it + " ";
+	}
+	for (auto &it : this->_defineOptions) {
+		res += "-D " + it.first + "="  + it.second + " ";
+	}
+	return res;
+}
+
+std::string			*getSourceContent(std::string filename)
 {
 	std::ifstream   ifs(filename);
 	std::string     *content;
 
 	content = new std::string(std::istreambuf_iterator<char>(ifs),
 			std::istreambuf_iterator<char>());
-	return content->c_str();
+	return content;
 }
 
-void			OpenCLTask::createProgram(std::string filename, cl_context ctx, cl_device_id device)
+void				OpenCLTask::initTask(cl_context ctx, cl_device_id device,
+								std::string progName, std::string kernelName)
 {
-	const char	*content;
-	char		log[16384];
+	this->createProgram(progName, ctx, device);
+	this->createKernel(kernelName, device);
+}
+
+void				OpenCLTask::createProgram(std::string filename, cl_context ctx,
+								cl_device_id device)
+{
+	std::string		*content;
+	const char		*contentCstr;
+	std::string		options;
+	char			log[16384];
 
 	content = getSourceContent(filename);
-	this->_program = clCreateProgramWithSource(ctx, 1, &content, NULL, &(this->_err));
+	contentCstr = content->c_str();
+	this->_program = clCreateProgramWithSource(ctx, 1, &(contentCstr), NULL, &(this->_err));
 	checkCLError(this->_err, "creating program");
-	this->_err = clBuildProgram(this->_program, 0, NULL, "-Werror", NULL, NULL);
+	options = this->getOptions();
+	this->_err = clBuildProgram(this->_program, 0, NULL, options.c_str(), NULL, NULL);
 	if (this->_err != CL_SUCCESS) {
 		clGetProgramBuildInfo(this->_program, device, CL_PROGRAM_BUILD_LOG, sizeof(log), log, NULL);
-		std::cerr << "Error on compilation(" << "program.cl" << "):" << std::endl;
+		std::cerr << "Error on compilation(" << filename << "):" << std::endl;
 		std::cerr << log << std::endl;
 	}
+	delete(content);
 }
 
 void			OpenCLTask::createKernel(std::string fnName, cl_device_id device)
@@ -42,21 +70,11 @@ void			OpenCLTask::createKernel(std::string fnName, cl_device_id device)
 								sizeof(this->_localWorkSize), &(this->_localWorkSize), NULL);
 	checkCLError(this->_err, "Getting work group info");
 
-	this->_nbWorkGroup = this->_nbParticle / this->_localWorkSize + 1;
+	this->_nbWorkGroup = this->_nbParticles / this->_localWorkSize + 1;
 	this->_globalWorkSize = this->_nbWorkGroup * this->_localWorkSize;
 }
 
-void			OpenCLTask::setKernelArg(cl_context ctx, GLuint vbo, cl_mem particles)
-{
-//	this->_particles = clCreateFromGLBuffer(ctx, CL_MEM_READ_WRITE, vbo, &(this->_err));
-//	checkCLError(this->_err, "creating buffer");
-
-//	this->_err = clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &(this->_particles));
-	this->_err = clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &particles);
-	checkCLError(this->_err, "setting kernel arg");
-}
-
-void			OpenCLTask::launchKernel(cl_command_queue queue)
+void			OpenCLTask::execKernel(cl_command_queue queue)
 {
 	printf("global: %lu\nlocal: %lu\n", (this->_globalWorkSize), (this->_localWorkSize));
 	this->_err = clEnqueueNDRangeKernel(queue, this->_kernel, 1, NULL,
@@ -64,14 +82,3 @@ void			OpenCLTask::launchKernel(cl_command_queue queue)
 										0, NULL, NULL); 
 	checkCLError(this->_err, "enqueuing kernel");
 }
-/*
-void			OpenCLTask::acquireGLObject(cl_command_queue queue)
-{
-	clEnqueueAcquireGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
-}
-
-void			OpenCLTask::releaseGLObject(cl_command_queue queue)
-{
-	clEnqueueReleaseGLObjects(queue, 1, &(this->_particles), 0, NULL, NULL);
-}
-*/
