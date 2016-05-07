@@ -14,6 +14,7 @@ class						Timer
 		void				start();
 		void				stop();
 		std::string			getTime();
+		float				getFps();
 
 	private:
 		struct timeval		_start;

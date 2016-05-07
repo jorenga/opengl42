@@ -8,8 +8,7 @@
 
 # include "OpenGLInc.hpp"
 # include "OpenGLMatrix.hpp"
-# include "OpenGLScene.hpp"
-# include "CameraControl.hpp"
+# include "Control.hpp"
 
 #define FROMFPS(X)				( 1.0f / X )
 #define TOFPS(X)				( 1.0f / X )
@@ -29,24 +28,17 @@ typedef struct					s_clipping_info
 	GLfloat						zFar;
 }								t_clipping_info;
 
-typedef struct					s_user_ptr
-{
-	t_window_info				*winInfo;
-	OpenGLMatrix				*model;
-	CameraControl				*camera;
-}								t_user_ptr;
-
 class							OpenGLManager
 {
 	public:
 								OpenGLManager();
 								OpenGLManager( GLfloat width, GLfloat height, std::string winName );
 								~OpenGLManager();
+		void					setWindowName(std::string name);
 		int						shouldClose( void );
 		void					swap( void );
-		void					setUserPtr( t_user_ptr *s );
 		void					createProjectionMatrix( void );
-		void					run(CameraControl *cam, OpenGLScene *scene);
+		void					setControl(Control *control);
 		OpenGLMatrix			getProjMat();
 
 	private:

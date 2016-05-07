@@ -4,9 +4,13 @@ OpenCLSimulation::OpenCLSimulation(int nbParticles) : _nbParticles(nbParticles)
 {
 	std::cout << "Init OpenGL Manager" << std::endl;
 	this->_glMan = new OpenGLManager(1024, 1024, "ps goodness");
+	this->_control.setDimension(1024, 1024, std::pow(nbParticles, 1.0f / 3.0f) * tan(0.392f) * 700.0f);
+	this->_glMan->setControl(&(this->_control));	
 	std::cout << "Init OpenGL Scene" << std::endl;
 	this->_glScene = new OpenGLScene(nbParticles);
 	this->_glScene->createShaderProg("vs.glsl", "fs.glsl");
+glUniform1f(glGetUniformLocation(this->_glScene->getProg(), "pX"), 0.0f);
+glUniform1f(glGetUniformLocation(this->_glScene->getProg(), "pY"), 0.0f);
 	this->_glScene->initVbo();
 	std::cout << "Create CL Context" << std::endl;
 	this->createContext();
@@ -18,7 +22,9 @@ OpenCLSimulation::OpenCLSimulation(int nbParticles) : _nbParticles(nbParticles)
 OpenCLSimulation::~OpenCLSimulation()
 {
 	clReleaseMemObject(this->_particles);
-	delete this->_task;
+	clReleaseMemObject(this->_particlesVelocity);
+	delete this->_pInitTask;
+	delete this->_pMoveTask;
 	clReleaseCommandQueue(this->_queue);
 	clReleaseContext(this->_ctx);
 	delete this->_glScene;
@@ -27,67 +33,100 @@ OpenCLSimulation::~OpenCLSimulation()
 
 void							OpenCLSimulation::createContext()
 {
-	cl_int						err;
-	CGLContextObj					kCGLContext = CGLGetCurrentContext();
-    CGLShareGroupObj				kCGLShareGroup = CGLGetShareGroup(kCGLContext);
-
-	cl_context_properties			properties[] =
+	CGLContextObj				kCGLContext = CGLGetCurrentContext();
+    CGLShareGroupObj			kCGLShareGroup = CGLGetShareGroup(kCGLContext);
+	cl_context_properties		properties[] =
 	{
 		CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
 		(cl_context_properties)kCGLShareGroup,
 		0
 	};
 
-    this->_ctx = clCreateContext(properties, 0, 0, NULL, NULL, &err);
-    checkCLError(err, "building context");
-    err = clGetContextInfo(this->_ctx, CL_CONTEXT_NUM_DEVICES,
+    this->_ctx = clCreateContext(properties, 0, 0, NULL, NULL, &(this->_err));
+    checkCLError(this->_err, "building context");
+    this->_err = clGetContextInfo(this->_ctx, CL_CONTEXT_NUM_DEVICES,
               				sizeof(cl_int), &(this->_deviceNb), NULL);
-	checkCLError(err, "context info");
+	checkCLError(this->_err, "context info");
 
     if (this->_deviceNb < 1) {
 		checkCLError(-1, "not enough devices");
     }
 
-    err = clGetContextInfo(this->_ctx,CL_CONTEXT_DEVICES,
+    this->_err = clGetContextInfo(this->_ctx,CL_CONTEXT_DEVICES,
 						sizeof(cl_device_id), &(this->_device), NULL);
-	checkCLError(err, "binding context to device");
+	checkCLError(this->_err, "binding context to device");
 
-	this->_queue = clCreateCommandQueue(this->_ctx, this->_device, 0, &err);
-	checkCLError(err, "creating command queue");
+	this->_queue = clCreateCommandQueue(this->_ctx, this->_device, 0, &(this->_err));
+	checkCLError(this->_err, "creating command queue");
 }
 
 void					OpenCLSimulation::initSimulation()
 {
 	std::cout << "Create pInit Task" << std::endl;
-	this->_task = new OpenCLTaskPInit(this->_nbParticles);
-	this->_task->initTask(this->_ctx, this->_device,
-							"kernels/initParticles.cl", "initParticles");
-	this->_task->setKernelArg(this->_particles);
+	this->_pInitTask = new OpenCLTaskPInit(this->_nbParticles);
+	this->_pInitTask->initTask(this->_ctx, this->_device,"kernels/initParticles.cl", "initParticles");
+	this->_pInitTask->setKernelArg(this->_particles, this->_particlesVelocity);
+
+	std::cout << "Create pMove Task" << std::endl;
+	this->_pMoveTask = new OpenCLTaskPMove(this->_nbParticles);
+	this->_pMoveTask->initTask(this->_ctx, this->_device,"kernels/moveParticles.cl", "moveParticles");
+	this->_pMoveTask->setKernelArg(this->_particles, this->_particlesVelocity);
+	this->_pMoveTask->setKernelVar(0.f, 0.f, this->_control.gravInverted);
 }
 
-void					OpenCLSimulation::launchSimulation()
+void					OpenCLSimulation::initParticles()
 {
 	this->acquireGLObject();
-	this->_task->execKernel(this->_queue);
+	this->_pInitTask->execKernel(this->_queue);
+	this->releaseGLObject();
+	clFinish(this->_queue);
+}
+
+void					OpenCLSimulation::moveParticles(float xPos, float yPos)
+{
+	this->acquireGLObject();
+	if (!this->_control.fixed)
+	{
+		this->_pMoveTask->setKernelVar(xPos, yPos, this->_control.gravInverted);
+		glUniform1f(glGetUniformLocation(this->_glScene->getProg(), "pX"), xPos);
+		glUniform1f(glGetUniformLocation(this->_glScene->getProg(), "pY"), yPos);
+	}
+	if (this->_control.launch)
+		this->_pMoveTask->execKernel(this->_queue);
 	this->releaseGLObject();
 	clFinish(this->_queue);
 }
 
 void					OpenCLSimulation::runSimulation()
 {
+	int					i;
+	float				fps = 0.f;
+	Timer				timer;
+
 	std::cout << "launch Simulation" << std::endl;
-	this->launchSimulation();
+	this->initParticles();
 
 	std::cout << "Start Loop" << std::endl;
 	while (!this->_glMan->shouldClose())
 	{
+		timer.start();
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+		this->moveParticles(this->_control.posX, this->_control.posY);
 		this->_glScene->drawScene(this->_viewMatrix, this->_glMan->getProjMat());
 
 		this->_glMan->swap();
 		glfwPollEvents();
+		timer.stop();
+		fps += timer.getFps();
+		i++;
+		if (i == 10)
+		{	
+			this->_glMan->setWindowName(std::to_string(fps / i));
+			fps = 0.f;
+			i = 0;
+		}
 	}
 }
 
@@ -104,5 +143,9 @@ void				OpenCLSimulation::releaseGLObject()
 void				OpenCLSimulation::initCLMem(GLuint vbo)
 {
 	this->_particles = clCreateFromGLBuffer(this->_ctx, CL_MEM_READ_WRITE, vbo, &(this->_err));
-	checkCLError(this->_err, "creating buffer");
+	checkCLError(this->_err, "creating buffer particles");
+
+	this->_particlesVelocity = clCreateBuffer(this->_ctx, CL_MEM_READ_WRITE, 
+					this->_nbParticles * sizeof(cl_float) * 4, NULL, &(this->_err));
+	checkCLError(this->_err, "creating buffer particles velocity");
 }

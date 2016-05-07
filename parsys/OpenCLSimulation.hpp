@@ -8,6 +8,9 @@
 # include "OpenCLInc.hpp"
 # include "OpenCLError.hpp"
 # include "OpenCLTaskPInit.hpp"
+# include "OpenCLTaskPMove.hpp"
+# include "Control.hpp"
+# include "Timer.hpp"
 
 class							OpenCLSimulation
 {
@@ -16,10 +19,11 @@ class							OpenCLSimulation
 								~OpenCLSimulation();
 
 		void					initSimulation();
-		void					launchSimulation();
 		void					runSimulation();
 
 	private:
+		void					initParticles();
+		void					moveParticles(float xPos, float yPos);
 		void					createContext();
 		void					acquireGLObject();
 		void					releaseGLObject();
@@ -32,10 +36,13 @@ class							OpenCLSimulation
 		cl_device_id			_device;
 		cl_int					_deviceNb;
 		cl_mem					_particles;
-		OpenCLTaskPInit*		_task;
+		cl_mem					_particlesVelocity;
+		OpenCLTaskPInit*		_pInitTask;
+		OpenCLTaskPMove*		_pMoveTask;
 		OpenGLManager*			_glMan;
 		OpenGLScene*			_glScene;
 		OpenGLMatrix			_viewMatrix;
+		Control					_control;
 
 		int						_nbParticles;
 };

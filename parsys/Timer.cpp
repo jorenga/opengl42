@@ -32,3 +32,10 @@ std::string		Timer::getTime()
 	ss << m << "m" << s << "s" << ms << "ms" << us << "us";
 	return ss.str();
 }
+
+#include <iostream>
+float			Timer::getFps()
+{
+	float		fTime = this->_time / 1000000.0f;
+	return (1.f / fTime);
+}

@@ -6,64 +6,24 @@ void					OpenGLManager::createProjectionMatrix(void)
 	this->_projectionMatrix.computeProjectionMatrix(this->_clipInfo.fov, this->_clipInfo.aspect, this->_clipInfo.zNear, this->_clipInfo.zFar);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int w, int h)
-{
-//	t_user_ptr				*ptr;
-
-	(void)window;
-	(void)w;
-	(void)h;
-//	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
-//	ptr->winInfo->width = w;
-//	ptr->winInfo->height = h;
- //   glViewport(0, 0, w, h);
-}
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-//	t_user_ptr				*ptr;
-//	float					alpha = 0.5235f;
+	Control*		control;
 
 	(void)scancode;
 	(void)mods;
-//	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
+	control = reinterpret_cast<Control *>(glfwGetWindowUserPointer(window));
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-/*	if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	else if (action == GLFW_PRESS)
-	{
-		if (mods == GLFW_MOD_SHIFT)
-		{
-			if (key == GLFW_KEY_LEFT)
-				ptr->model->rotateZ(alpha);
-			else if (key == GLFW_KEY_RIGHT)
-				ptr->model->rotateZ(-alpha);
-		}
-		else
-		{
-			if (key == GLFW_KEY_UP)
-				ptr->model->rotateX(alpha);
-			else if (key == GLFW_KEY_DOWN)
-				ptr->model->rotateX(-alpha);
-			else if (key == GLFW_KEY_LEFT)
-				ptr->model->rotateY(alpha);
-			else if (key == GLFW_KEY_RIGHT)
-				ptr->model->rotateY(-alpha);
-		}
-	}
-	ptr->camera->controlKey(key, action, mods);*/
+	control->processInput(key, action);
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xPos, double yPos)
 {
-	//t_user_ptr				*ptr;
-	
-	(void)window;
-	(void)xPos;
-	(void)yPos;
-	//ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
-	//ptr->camera->controlMouse(xPos, yPos);
+	Control*		control;
+
+	control = reinterpret_cast<Control *>(glfwGetWindowUserPointer(window));
+	control->processMouse(xPos, yPos);
 }
 
 void error_callback(int error, const char* description)
@@ -80,8 +40,6 @@ void				OpenGLManager::initOpenGl( void )
         exit(0);
     
 	glfwWindowHint(GLFW_SAMPLES, 4);
-//	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
-//	glfwWindowHint(GLFW_DEPTH_BITS, 24);
   	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -95,10 +53,8 @@ void				OpenGLManager::initOpenGl( void )
         exit(0);
     }
     
-    glfwSetFramebufferSizeCallback(this->_window, framebuffer_size_callback);
     glfwSetKeyCallback(this->_window, key_callback);
     glfwSetCursorPosCallback(this->_window, cursor_position_callback);
-//	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
     glfwMakeContextCurrent(this->_window);
     glfwSwapInterval(1);
 
@@ -114,7 +70,6 @@ OpenGLManager::OpenGLManager()
 	_winInfo.width = 512;
 	_winInfo.height = 512;
 	_winInfo.winName = "Untitled";
-//	_clipInfo.fov = 45;
 	_clipInfo.fov = 0.785f;
 	_clipInfo.aspect = 1;
 	_clipInfo.zNear = 0.1;
@@ -128,10 +83,10 @@ OpenGLManager::OpenGLManager( GLfloat width, GLfloat height, std::string winName
 	_winInfo.width = width;
 	_winInfo.height = height;
 	_winInfo.winName = winName;
-	_clipInfo.fov = 45;
+	_clipInfo.fov = 0.785f;
 	_clipInfo.aspect = width / height;
-	_clipInfo.zNear = 0.1;
-	_clipInfo.zFar = 1000;
+	_clipInfo.zNear = 0.1f;
+	_clipInfo.zFar = 100000.f;
 	initOpenGl();
 	this->createProjectionMatrix();
 }
@@ -152,12 +107,17 @@ void				OpenGLManager::swap()
 	glfwSwapBuffers(this->_window);
 }
 
-void				OpenGLManager::setUserPtr(t_user_ptr *s)
-{
-	glfwSetWindowUserPointer(this->_window, static_cast<void *>(s));
-}
-
 OpenGLMatrix			OpenGLManager::getProjMat()
 {
 	return this->_projectionMatrix;
+}
+
+void					OpenGLManager::setControl(Control *control)
+{
+	glfwSetWindowUserPointer(this->_window, static_cast<void *>(control));
+}
+
+void					OpenGLManager::setWindowName(std::string name)
+{
+	glfwSetWindowTitle(this->_window, name.c_str());
 }

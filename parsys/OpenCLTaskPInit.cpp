@@ -11,8 +11,10 @@ OpenCLTaskPInit::OpenCLTaskPInit(int nbParticles) : OpenCLTask(nbParticles)
 
 OpenCLTaskPInit::~OpenCLTaskPInit() {}
 
-void			OpenCLTaskPInit::setKernelArg(cl_mem particles)
+void			OpenCLTaskPInit::setKernelArg(cl_mem particles, cl_mem particlesV)
 {
 	this->_err = clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &particles);
-	checkCLError(this->_err, "setting kernel arg");
+	checkCLError(this->_err, "setting kernel arg: particles");
+	this->_err = clSetKernelArg(this->_kernel, 1, sizeof(cl_mem), &particlesV);
+	checkCLError(this->_err, "setting kernel arg: particlesV");
 }

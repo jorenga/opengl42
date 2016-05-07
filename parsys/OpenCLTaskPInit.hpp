@@ -9,7 +9,7 @@ class							OpenCLTaskPInit : public OpenCLTask
 	public:
 								OpenCLTaskPInit(int nbParticles);
 								~OpenCLTaskPInit();
-		void					setKernelArg(cl_mem particles);
+		void					setKernelArg(cl_mem particles, cl_mem particlesV);
 		
 };
 

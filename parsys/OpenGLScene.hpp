@@ -20,6 +20,7 @@ class							OpenGLScene
 		
 		OpenGLMatrix*			getModelMatrix();
 		GLuint					getVbo();
+		GLuint					getProg();
 
 
 	private:

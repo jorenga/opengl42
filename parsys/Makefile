@@ -7,12 +7,14 @@ SRC= main.cpp \
 	 OpenCLSimulation.cpp \
 	 OpenCLTask.cpp \
 	 OpenCLTaskPInit.cpp \
+	 OpenCLTaskPMove.cpp \
 	 Matrix.cpp \
 	 OpenGLManager.cpp \
 	 OpenGLMatrix.cpp \
 	 OpenGLScene.cpp \
 	 OpenGLShader.cpp \
 	 vector.cpp \
+	 Control.cpp \
 	 Timer.cpp
 
 OBJ= $(SRC:.cpp=.o)
