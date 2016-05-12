@@ -10,11 +10,12 @@ __kernel void	moveParticles(__global float4 *particles, __global float4 *particl
 
 	if (d < 10.0f)
 	{
-		particlesV[i] += normalize(center - particles[i]) * ( CGM / 10000 ) * gi;
+//		particlesV[i] += normalize(center - particles[i]) * ( CGM / 10000.0f ) * gi;
+		particlesV[i] += normalize(center - particles[i]) * ( CGM / ( 100.0f / 1000.0f) ) * gi;
 		particles[i] += particlesV[i];
 		return;
 	}
 		
-	particlesV[i] += normalize(center - particles[i]) * ( CGM / (d2 / 1000) ) * gi;
+	particlesV[i] += normalize(center - particles[i]) * ( CGM / (d2 / 1000.0f) ) * gi;
 	particles[i] += particlesV[i];
 }
